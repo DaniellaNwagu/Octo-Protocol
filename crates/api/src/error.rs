@@ -31,6 +31,8 @@ pub enum ApiError {
     Gone(String),
     /// 429 — a rate limit or budget would be exceeded.
     TooManyRequests(String),
+    /// 400 — inner transaction sequence number does not match current on-chain sequence.
+    StaleSequence(String),
     /// 500 — an internal error. The detail is logged, never returned to the client.
     Internal,
     /// 504 — an upstream dependency (e.g. Horizon) did not answer within the route's time budget.
@@ -48,6 +50,7 @@ impl ApiError {
             ApiError::ConflictWith(m) => (StatusCode::CONFLICT, m.clone()),
             ApiError::Gone(m) => (StatusCode::GONE, m.clone()),
             ApiError::TooManyRequests(m) => (StatusCode::TOO_MANY_REQUESTS, m.clone()),
+            ApiError::StaleSequence(m) => (StatusCode::BAD_REQUEST, m.clone()),
             ApiError::Internal => (
                 StatusCode::INTERNAL_SERVER_ERROR,
                 "internal server error".into(),
@@ -96,6 +99,9 @@ impl From<octo_wallet_core::WalletError> for ApiError {
             | W::InvalidDerivationPath
             | W::InvalidXdr
             | W::InvalidSignature => ApiError::BadRequest("invalid input".into()),
+            W::StaleSequence => ApiError::StaleSequence(
+                "Stale sequence number — refresh signing info and rebuild the transaction.".into(),
+            ),
             W::KeyDerivation | W::Signing | W::SeedDecryption => ApiError::Internal,
         }
     }
