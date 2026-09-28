@@ -50,7 +50,7 @@ decrypt. Consequently:
 - `GET  /v1/wallets/{id}/balances` — live on-chain balances. Fetched synchronously from
   Horizon under a **10 s** route timeout (independent of per-attempt retries); if Horizon is
   slower than that, the request ends with `504` in the standard envelope — safe to retry.
-- `GET  /v1/wallets/{id}/transactions` — deposits + outbound transfers (paginated).
+- `GET  /v1/wallets/{id}/transactions` — deposits + outbound transfers (paginated, optional `?direction=deposit|withdrawal`).
 - `GET  /v1/wallets/{id}/backup` — the opaque client-encrypted backup blob, for new-device
   recovery. **Dashboard JWT only.** Useless without the user's password.
 
@@ -121,7 +121,7 @@ so it cannot escalate or revoke itself.
 ## Audit logs
 
 - `GET /v1/audit-logs` — your account's activity, filterable by `category` and a free-text
-  `search`.
+  `search`. Valid categories: `authentication`, `wallet`, `address`, `credentials`, `configuration`, `sponsorship`.
 
 ## Conventions
 
